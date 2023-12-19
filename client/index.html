@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lista de Preguntas</title>
+    <style>
+        #listaPreguntas li {
+            margin: 5px 0;
+            list-style: none;
+        }
+
+        .eliminarBtn {
+            margin-left: 10px;
+            color: red;
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body>
+<h1>Mi Lista de Preguntas</h1>
+<input id="nuevaPreguntaTitulo" placeholder="Agregar nueva pregunta" type="text">
+<textarea id="nuevaPreguntaDescripcion" placeholder="Descripcion de la pregunta"></textarea>
+<button onclick="agregarPregunta()">Agregar</button>
+<ul id="listaPreguntas">
+    <!-- Las Preguntas se añadirán aquí -->
+</ul>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        fetchTasks();
+    });
+
+    function agregarPregunta() {
+    let titulo = document.getElementById("nuevaPreguntaTitulo").value;
+    let description = document.getElementById("nuevaPreguntaDescripcion").value;
+
+    if (titulo.trim() === "") {
+        alert("Por favor, escribe una pregunta.");
+        return;
+    }
+
+    fetch('http://localhost:4000/preguntas', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ titulo: titulo, description: description })
+    })
+        .then(response => response.json())
+        .then(task => {
+            addTaskToDOM(task);
+            document.getElementById("nuevaPreguntaTitulo").value = "";
+            document.getElementById("nuevaPreguntaDescripcion").value = "";
+        });
+}
+
+
+    function fetchTasks() {
+        fetch('http://localhost:4000/preguntas')
+            .then(response => response.json())
+            .then(tasks => {
+                tasks.forEach(task => addTaskToDOM(task));
+            });
+    }
+
+    function addTaskToDOM(task) {
+    let li = document.createElement("li");
+    li.textContent = task.titulo + ": " + task.description;
+    li.id = task._id;
+
+    let eliminarBtn = document.createElement("button");
+    eliminarBtn.textContent = "Eliminar";
+    eliminarBtn.className = "eliminarBtn";
+    eliminarBtn.onclick = function () {
+        deleteTask(task._id, li);
+    };
+
+    li.appendChild(eliminarBtn);
+    document.getElementById("listaPreguntas").appendChild(li);
+}
+
+
+    function deleteTask(taskId, taskElement) {
+        fetch('http://localhost:4000/preguntas/' + taskId, { method: 'DELETE' })
+            .then(() => {
+                taskElement.remove();
+            });
+    }
+
+    
+</script>
+</body>
+</html>

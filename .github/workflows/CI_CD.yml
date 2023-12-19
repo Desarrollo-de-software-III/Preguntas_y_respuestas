@@ -20,7 +20,7 @@ jobs:
       run: docker-compose up --build -d
 
     - name: Push Docker image to Docker Hub
-      run: docker push ${{ secrets.DOCKERHUB_USERNAME }}
+      run: docker-compose push ${{ secrets.DOCKERHUB_USERNAME }}
 
     
 
